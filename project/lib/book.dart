@@ -1,7 +1,9 @@
+// import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project/book.dart';
-// import 'package:project/book.dart';
+import 'package:project/queue.dart';
+// import 'package:project/client.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,13 +19,13 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const ClientPage(),
+      home: const BookPage(),
     );
   }
 }
 
-class ClientPage extends StatelessWidget {
-  const ClientPage({super.key});
+class BookPage extends StatelessWidget {
+  const BookPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +64,7 @@ class ClientPage extends StatelessWidget {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  'Welcome to IT BBQ!',
+                  'การจองคิว',
                   style: GoogleFonts.playfairDisplay(
                     color: Color(0xFFFA6C6B),
                     fontWeight: FontWeight.bold,
@@ -74,7 +76,7 @@ class ClientPage extends StatelessWidget {
 
               Align(
                   alignment: Alignment.centerLeft,// ชิดซ้าย
-                  child: Text('ชื่อผู้ใช้', style: GoogleFonts.openSans(fontSize: 16),)),
+                  child: Text('ชื่อลูกค้า', style: GoogleFonts.openSans(fontSize: 16),)),
               SizedBox(
                 width: double.infinity, // ให้ TextField กว้างเต็มที่
                 child: TextField(
@@ -95,7 +97,7 @@ class ClientPage extends StatelessWidget {
         
               Align(
                   alignment: Alignment.centerLeft,// ชิดซ้าย
-                  child:Text('รหัสผ่าน', style: GoogleFonts.openSans(fontSize: 16))),
+                  child:Text('จำนวนคน', style: GoogleFonts.openSans(fontSize: 16))),
               SizedBox(
                 width: double.infinity,
                 child: TextField(
@@ -118,9 +120,25 @@ class ClientPage extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const BookPage()));
-                  }, //กดแล้วไปหน้าไหน 
+                  onPressed: () => {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('การจองสำเร็จ'),
+                          content: Text('ขอบคุณที่ใช้บริการ'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                 Navigator.push(context, MaterialPageRoute(builder: (context) => const QueuePage()));
+                              },
+                              child: Text('ตกลง'),
+                            ),
+                          ],
+                        );
+                      },
+                    )
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFA6C6B),
                     shape: RoundedRectangleBorder(
@@ -128,7 +146,7 @@ class ClientPage extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'เข้าสู่ระบบ',
+                    'ยืนยันการจอง',
                     style: GoogleFonts.openSans(
                       color: Colors.white,
                       fontSize: 18,
