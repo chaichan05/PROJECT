@@ -52,112 +52,133 @@ class BookPage extends StatelessWidget {
         backgroundColor: const Color(0xFFFA6C6B),
       ),
 
-      body: Center(
-        child: Container(
-          margin: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // ไม่ยืดเต็มแนวตั้ง
-            crossAxisAlignment: CrossAxisAlignment.center, // ชิดกลางแนวนอน 
-            // crossAxisAlignment: CrossAxisAlignment.start, //  ชิดซ้าย
-            children: [
-              // ถ้าอยากให้หัวข้อยังอยู่กึ่งกลาง ให้ห่อด้วย Align แยกต่างหาก
-              Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'การจองคิว',
-                  style: GoogleFonts.playfairDisplay(
-                    color: Color(0xFFFA6C6B),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 36,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              Align(
-                  alignment: Alignment.centerLeft,// ชิดซ้าย
-                  child: Text('ชื่อลูกค้า', style: GoogleFonts.openSans(fontSize: 16),)),
-              SizedBox(
-                width: double.infinity, // ให้ TextField กว้างเต็มที่
-                child: TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 16,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-        
-              Align(
-                  alignment: Alignment.centerLeft,// ชิดซ้าย
-                  child:Text('จำนวนคน', style: GoogleFonts.openSans(fontSize: 16))),
-              SizedBox(
-                width: double.infinity,
-                child: TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 16,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () => {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('การจองสำเร็จ'),
-                          content: Text('ขอบคุณที่ใช้บริการ'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                 Navigator.push(context, MaterialPageRoute(builder: (context) => const QueuePage()));
-                              },
-                              child: Text('ตกลง'),
-                            ),
-                          ],
-                        );
-                      },
-                    )
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFA6C6B),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+      body: Stack(
+        children: [
+          Container(
+            margin: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // ไม่ยืดเต็มแนวตั้ง
+              // crossAxisAlignment: CrossAxisAlignment.center, // ชิดกลางแนวนอน
+              // crossAxisAlignment: CrossAxisAlignment.start, //  ชิดซ้าย
+              children: [
+                // ถ้าอยากให้หัวข้อยังอยู่กึ่งกลาง ให้ห่อด้วย Align แยกต่างหาก
+                const SizedBox(height: 60),
+                Align(
+                  alignment: Alignment.center,
                   child: Text(
-                    'ยืนยันการจอง',
-                    style: GoogleFonts.openSans(
-                      color: Colors.white,
-                      fontSize: 18,
+                    'การจองคิว',
+                    style: GoogleFonts.playfairDisplay(
+                      color: Color(0xFFFA6C6B),
                       fontWeight: FontWeight.bold,
+                      fontSize: 36,
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 100),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: "ชื่อลูกค้า",
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: "จำนวนคน",
+                      prefixIcon: Icon(Icons.group_add),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed:
+                        () => {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('การจองสำเร็จ'),
+                                content: Text('ขอบคุณที่ใช้บริการ'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => const QueuePage(),
+                                        ),
+                                      );
+                                    },
+                                    child: Text('ตกลง'),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFA6C6B),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'ยืนยันการจอง',
+                      style: GoogleFonts.openSans(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+          Positioned(
+            top: 20,
+            left: 20,
+            child: Material(
+              color: Color(0xFFF6FBFE),
+              shape: const CircleBorder(),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                alignment: Alignment.topLeft,
+              ),
+            ),
+          ),
+        ],
       ),
 
       backgroundColor: const Color(0xFFF6FBFE),
