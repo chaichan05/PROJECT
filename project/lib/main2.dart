@@ -66,7 +66,7 @@ class HomePage2 extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ClientPage()),
+                    MaterialPageRoute(builder: (context) => const ClientPage(title: 'ลูกค้า',)),
                   );
                 },
                 child: const Text(
@@ -98,7 +98,6 @@ class HomePage2 extends StatelessWidget {
               ),
             ],
           ),
-
           // ปุ่มย้อนกลับล่างซ้าย
           Positioned(
             top: 20,

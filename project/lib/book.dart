@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/queue.dart';
+import 'package:project/validator/validator.dart';
 // import 'package:project/client.dart';
 
 void main() {
@@ -19,13 +20,24 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const BookPage(),
+      home: const BookPage(title: "Book Page"),
     );
   }
 }
 
-class BookPage extends StatelessWidget {
-  const BookPage({super.key});
+class BookPage extends StatefulWidget {
+  const BookPage({super.key, required this.title});
+  final String title;
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _BookPageState createState() => _BookPageState();
+}
+
+class _BookPageState extends State<BookPage> {
+  String? user;
+  double? person;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -54,72 +66,90 @@ class BookPage extends StatelessWidget {
 
       body: Stack(
         children: [
-          Container(
-            margin: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // ไม่ยืดเต็มแนวตั้ง
-              // crossAxisAlignment: CrossAxisAlignment.center, // ชิดกลางแนวนอน
-              // crossAxisAlignment: CrossAxisAlignment.start, //  ชิดซ้าย
-              children: [
-                // ถ้าอยากให้หัวข้อยังอยู่กึ่งกลาง ให้ห่อด้วย Align แยกต่างหาก
-                const SizedBox(height: 60),
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'การจองคิว',
-                    style: GoogleFonts.playfairDisplay(
-                      color: Color(0xFFFA6C6B),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 36,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 100),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: "ชื่อลูกค้า",
-                      prefixIcon: Icon(Icons.person),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
+          Form(
+            key: _formKey,
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // ไม่ยืดเต็มแนวตั้ง
+                // crossAxisAlignment: CrossAxisAlignment.center, // ชิดกลางแนวนอน
+                // crossAxisAlignment: CrossAxisAlignment.start, //  ชิดซ้าย
+                children: [
+                  // ถ้าอยากให้หัวข้อยังอยู่กึ่งกลาง ให้ห่อด้วย Align แยกต่างหาก
+                  const SizedBox(height: 60),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'การจองคิว',
+                      style: GoogleFonts.playfairDisplay(
+                        color: Color(0xFFFA6C6B),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 36,
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: "จำนวนคน",
-                      prefixIcon: Icon(Icons.group_add),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
+                  const SizedBox(height: 100),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "ชื่อลูกค้า",
+                        prefixIcon: Icon(Icons.person),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
+                      validator:
+                          Validator.required(
+                            errorMessage: 'กรุณากรอกชื่อลูกค้า',
+                          ),
+                      onChanged: (value) {
+                        user = value;
+                      },
                     ),
                   ),
-                ),
-                const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "จำนวนคน",
+                        prefixIcon: Icon(Icons.group_add),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                      ),
+                      validator: Validator.multiValidator([
+                        Validator.required(errorMessage: 'กรุณากรอกจำนวนคน'),
+                        Validator.numberValidator(
+                          errorMessage: 'กรุณากรอกจำนวนคนเป็นตัวเลข',
+                        ),
+                      ]),
+                      onChanged: (value) {
+                        person = double.tryParse(value);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 30),
 
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed:
-                        () => {
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -142,25 +172,28 @@ class BookPage extends StatelessWidget {
                                 ],
                               );
                             },
-                          ),
-                        },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFA6C6B),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                          );
+                        }
+                      },
+
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFA6C6B),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      'ยืนยันการจอง',
-                      style: GoogleFonts.openSans(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                      child: Text(
+                        'ยืนยันการจอง',
+                        style: GoogleFonts.openSans(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Positioned(
@@ -180,7 +213,6 @@ class BookPage extends StatelessWidget {
           ),
         ],
       ),
-
       backgroundColor: const Color(0xFFF6FBFE),
     );
   }

@@ -20,8 +20,33 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1))
+          ..repeat(reverse: true); // ให้กระพริบไปเรื่อย ๆ
+
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,19 +73,22 @@ class HomePage extends StatelessWidget {
         backgroundColor: const Color(0xFFFA6C6B),
       ),
 
-      body: GestureDetector( //gesturedetector คือ 
-        behavior: HitTestBehavior.opaque, // ให้คลิกได้ทุกที่แม้ไม่กดตรง Text
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const HomePage2()),
           );
         },
-        child: const Center(
-          child: Text(
-            'แตะเพื่อเข้าสู่ระบบ',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
+        child: Center(
+          child: FadeTransition(
+            opacity: _animation,
+            child: const Text(
+              'แตะเพื่อเข้าสู่ระบบ',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
