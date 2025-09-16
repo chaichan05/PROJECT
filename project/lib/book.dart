@@ -1,5 +1,6 @@
 // import 'dart:collection';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/queue.dart';
@@ -105,10 +106,9 @@ class _BookPageState extends State<BookPage> {
                           horizontal: 16,
                         ),
                       ),
-                      validator:
-                          Validator.required(
-                            errorMessage: 'กรุณากรอกชื่อลูกค้า',
-                          ),
+                      validator: Validator.required(
+                        errorMessage: 'กรุณากรอกชื่อลูกค้า',
+                      ),
                       onChanged: (value) {
                         user = value;
                       },
@@ -148,31 +148,67 @@ class _BookPageState extends State<BookPage> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('การจองสำเร็จ'),
-                                content: Text('ขอบคุณที่ใช้บริการ'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => const QueuePage(),
+                          if (user == null || user!.isEmpty) return;
+
+                          try {
+                            final snapshot =
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .where(
+                                      'username',
+                                      isEqualTo: user,
+                                    ) // 👈 แก้ field ให้ตรงกับที่คุณเก็บจริง
+                                    .limit(1)
+                                    .get();
+
+                            if (snapshot.docs.isNotEmpty) {
+                              // พบผู้ใช้
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('การจองสำเร็จ'),
+                                    content: const Text('ขอบคุณที่ใช้บริการ'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      const QueuePage(),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text(
+                                          'ตกลง',
+                                          style: TextStyle(color: Colors.green),
                                         ),
-                                      );
-                                    },
-                                    child: Text('ตกลง'),
-                                  ),
-                                ],
+                                       
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
-                            },
-                          );
+                            } else {
+                              // ไม่พบผู้ใช้
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'ไม่พบชื่อในระบบ กรุณาสมัครก่อนจองคิว',
+                                  ),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            // ⚠️ กรณี error จาก Firestore
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+                            );
+                          }
                         }
                       },
 

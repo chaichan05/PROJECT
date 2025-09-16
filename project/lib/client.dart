@@ -157,9 +157,7 @@ class _ClientPageState extends State<ClientPage> {
                     child: ElevatedButton(
                       onPressed: () async {
                         if (!_formKey.currentState!.validate()) return;
-
                           await saveUserData(user!, password!);
-
                           if (!mounted) return;
 
                           Navigator.push(
@@ -213,4 +211,4 @@ class _ClientPageState extends State<ClientPage> {
       backgroundColor: const Color(0xFFF6FBFE),
     );
   }
-}
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
