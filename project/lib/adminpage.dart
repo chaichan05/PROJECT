@@ -15,13 +15,13 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const QueuePage(),
+      home: const AdminPage(),
     );
   }
 }
 
-class QueuePage extends StatelessWidget {
-  const QueuePage({super.key});
+class AdminPage extends StatelessWidget {
+  const AdminPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +31,7 @@ class QueuePage extends StatelessWidget {
           image: const AssetImage('assets/bbq.png'),
           alignment: Alignment.centerLeft,
         ),
+        automaticallyImplyLeading: false, // ❌ ไม่ต้องแสดงปุ่ม back อัตโนมัติ
         toolbarHeight: 70,
         centerTitle: true,
         title: ConstrainedBox(
@@ -50,7 +51,7 @@ class QueuePage extends StatelessWidget {
 
       body: const Center(
         child: Text(
-          'Queque page',
+          'Admin',
           style: 
           TextStyle(
             fontSize: 24,

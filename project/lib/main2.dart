@@ -32,20 +32,23 @@ class HomePage2 extends StatelessWidget {
           image: AssetImage('assets/bbq.png'),
           alignment: Alignment.centerLeft,
         ),
+        automaticallyImplyLeading: false, // ❌ ไม่ต้องแสดงปุ่ม back อัตโนมัติ
         toolbarHeight: 70,
         centerTitle: true,
-        title: Text(
-          'IT BBQ',
-          style: GoogleFonts.playfairDisplay(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 32,
+        title: ConstrainedBox(
+          constraints: const BoxConstraints(),
+          child: Text(
+            'IT BBQ',
+            style: GoogleFonts.playfairDisplay(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 32,
+            ),
+            textAlign: TextAlign.right,
           ),
-          textAlign: TextAlign.right,
         ),
         backgroundColor: const Color(0xFFFA6C6B),
       ),
-
       body: Stack(
         children: [
           // เนื้อหาหลัก (เลื่อนด้วย ListView ได้)
@@ -66,7 +69,9 @@ class HomePage2 extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ClientPage(title: 'ลูกค้า',)),
+                    MaterialPageRoute(
+                      builder: (context) => const ClientPage(title: 'ลูกค้า'),
+                    ),
                   );
                 },
                 child: const Text(
@@ -88,7 +93,9 @@ class HomePage2 extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AdminPage()),
+                    MaterialPageRoute(
+                      builder: (context) => const AdminLogin(title: 'แอดมิน'),
+                    ),
                   );
                 },
                 child: const Text(

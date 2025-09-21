@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/queue.dart';
 import 'package:project/validator/validator.dart';
-// import 'package:project/client.dart';
+//import 'package:project/client.dart';
 
 void main() {
   runApp(const MyApp());
@@ -47,6 +47,7 @@ class _BookPageState extends State<BookPage> {
           image: const AssetImage('assets/bbq.png'),
           alignment: Alignment.centerLeft,
         ),
+        automaticallyImplyLeading: false, // ❌ ไม่ต้องแสดงปุ่ม back อัตโนมัติ
         toolbarHeight: 70,
         centerTitle: true,
         title: ConstrainedBox(
