@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project/main2.dart';
+import 'main2.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage>
     super.initState();
     _controller =
         AnimationController(vsync: this, duration: const Duration(seconds: 1))
-          ..repeat(reverse: true); // ให้กระพริบไปเรื่อย ๆ
+          ..repeat(reverse: true);
 
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
   }
@@ -58,21 +58,16 @@ class _HomePageState extends State<HomePage>
         ),
         toolbarHeight: 70,
         centerTitle: true,
-        title: ConstrainedBox(
-          constraints: const BoxConstraints(),
-          child: Text(
-            'IT BBQ',
-            style: GoogleFonts.playfairDisplay(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 32,
-            ),
-            textAlign: TextAlign.right,
+        title: Text(
+          'IT BBQ',
+          style: GoogleFonts.playfairDisplay(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 32,
           ),
         ),
         backgroundColor: const Color(0xFFFA6C6B),
       ),
-
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -92,7 +87,6 @@ class _HomePageState extends State<HomePage>
           ),
         ),
       ),
-
       backgroundColor: const Color(0xFFF6FBFE),
     );
   }
