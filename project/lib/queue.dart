@@ -1,234 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project/main.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const QueuePage(),
-    );
-  }
-}
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class QueuePage extends StatelessWidget {
-  const QueuePage({super.key});
+  const QueuePage({super.key, required this.docId});
+  final String docId;
 
   @override
   Widget build(BuildContext context) {
+    final docRef = FirebaseFirestore.instance.collection('users').doc(docId);
+
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: Image(
-          image: const AssetImage('assets/bbq.png'),
+        flexibleSpace: const Image(
+          image: AssetImage('assets/bbq.png'),
           alignment: Alignment.centerLeft,
+          fit: BoxFit.cover,
         ),
-        automaticallyImplyLeading: false, // ❌ ไม่ต้องแสดงปุ่ม back อัตโนมัติ
+        automaticallyImplyLeading: false,
         toolbarHeight: 70,
         centerTitle: true,
-        title: ConstrainedBox(
-          constraints: BoxConstraints(),
-          child: Text(
-            'IT BBQ',
-            style: GoogleFonts.playfairDisplay(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 32,
-            ),
-            textAlign: TextAlign.right,
+        title: Text(
+          'IT BBQ',
+          style: GoogleFonts.playfairDisplay(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 32,
           ),
         ),
         backgroundColor: const Color(0xFFFA6C6B),
       ),
 
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          Center(
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Queue Page',
-                style: GoogleFonts.lato(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        stream: docRef.snapshots(), // ✅ ตามดูเอกสารนี้แบบเรียลไทม์
+        builder: (context, snap) {
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snap.hasData || !snap.data!.exists) {
+            return const Center(child: Text('ไม่พบคิวของคุณ'));
+          }
+
+          final data = snap.data!.data()!;
+          final name = data['username']?.toString() ?? '-';
+          final people = data['people']?.toString() ?? '-';
+          // timestamp อาจเป็น null ชั่วคราวจน serverTimestamp เขียนเสร็จ
+          final ts = data['timestamp'];
+          String tsText = '-';
+          if (ts is Timestamp) {
+            final d = ts.toDate();
+            tsText =
+                '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')} '
+                '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+          }
+
+          return Column(
+            children: [
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'คิวของฉัน',
+                  style: GoogleFonts.lato(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
+
+              Card(
+                elevation: 3,
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      rowItem('ชื่อผู้จอง', name),
+                      rowItem('จำนวนคน', people),
+                      rowItem('วันเวลาที่จอง', tsText),
+                      const SizedBox(height: 24),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFA6C6B),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            'กลับ',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      backgroundColor: const Color(0xFFF6FBFE),
+    );
+  }
+
+  // helper แสดงแถวหัวข้อ : ค่า (ขวา)
+  Widget rowItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: GoogleFonts.lato(fontSize: 16, color: Colors.grey[700]),
             ),
           ),
-          Card(
-            elevation: 3,
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // แถวบน: คิวของคุณ / รออีก(คิว)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "คิวของคุณ",
-                          style: GoogleFonts.lato(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          "รออีก 3 (คิว)", // ตัวอย่าง
-                          style: GoogleFonts.lato(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "15",
-                          style: GoogleFonts.lato(
-                            fontSize: 30,
-                            color: const Color.fromARGB(255, 202, 24, 24),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          "5",
-                          style: GoogleFonts.lato(
-                            fontSize: 30,
-                            color: const Color.fromARGB(255, 202, 24, 24),
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "ชื่อผู้จอง",
-                          style: GoogleFonts.lato(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          "โชว์ชื่อผู้จอง",
-                          style: GoogleFonts.lato(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "วันเวลาที่จอง",
-                          style: GoogleFonts.lato(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          "โชว์วันเวลาที่จอง",
-                          style: GoogleFonts.lato(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "จำนวนคน",
-                          style: GoogleFonts.lato(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          "โชว์วจำนวนคน",
-                          style: GoogleFonts.lato(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 40),
-                  Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFA6C6B),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12.0,
-                          horizontal: 24.0,
-                        ),
-                        textStyle: GoogleFonts.lato(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HomePage()),
-                          (Route<dynamic> route) => false,
-                        );
-                      },
-                      child: const Text(
-                        'ยกเลิกคิว',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          Expanded(
+            child: Text(
+              value,
+              style: GoogleFonts.lato(fontSize: 16, color: Colors.grey[800]),
+              textAlign: TextAlign.right,
             ),
           ),
         ],
       ),
-      backgroundColor: const Color(0xFFF6FBFE),
     );
   }
 }

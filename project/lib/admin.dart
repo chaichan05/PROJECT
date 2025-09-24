@@ -161,7 +161,7 @@ class _AdminLoginState extends State<AdminLogin> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const AdminPage(),
+                              builder: (context) => const ITBBQApp(),
                             ),
                           );
                         }
