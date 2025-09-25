@@ -12,14 +12,6 @@ class QueuePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: const Image(
-          image: AssetImage('assets/bbq.png'),
-          alignment: Alignment.centerLeft,
-          fit: BoxFit.cover,
-        ),
-        automaticallyImplyLeading: false,
-        toolbarHeight: 70,
-        centerTitle: true,
         title: Text(
           'IT BBQ',
           style: GoogleFonts.playfairDisplay(
@@ -29,29 +21,38 @@ class QueuePage extends StatelessWidget {
           ),
         ),
         backgroundColor: const Color(0xFFFA6C6B),
+        automaticallyImplyLeading: false, // ไม่ให้แสดงปุ่ม back
       ),
-
-      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        stream: docRef.snapshots(), // ✅ ตามดูเอกสารนี้แบบเรียลไทม์
-        builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
+      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>( 
+        stream: docRef.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (!snap.hasData || !snap.data!.exists) {
+          if (!snapshot.hasData || !snapshot.data!.exists) {
             return const Center(child: Text('ไม่พบคิวของคุณ'));
           }
 
-          final data = snap.data!.data()!;
+          final data = snapshot.data!.data()!;
           final name = data['username']?.toString() ?? '-';
           final people = data['people']?.toString() ?? '-';
-          // timestamp อาจเป็น null ชั่วคราวจน serverTimestamp เขียนเสร็จ
-          final ts = data['timestamp'];
-          String tsText = '-';
-          if (ts is Timestamp) {
-            final d = ts.toDate();
-            tsText =
+          final queue = data['queteue']?.toString() ?? '-';
+          final status = data['status'] ?? 'รอต่อไป';  // ใช้ 'status' สำหรับการตรวจสอบ
+          final timestamp = data['timestamp'];
+
+          String timestampText = '-';
+          if (timestamp is Timestamp) {
+            final d = timestamp.toDate();
+            timestampText =
                 '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')} '
                 '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+          }
+
+          // เมื่อ status เป็น "ถึงคิวแล้ว" ให้แสดง Dialog แจ้งเตือน
+          if (status == 'ถึงคิวแล้ว') {
+            Future.delayed(Duration.zero, () {
+              _showDialog(context);
+            });
           }
 
           return Column(
@@ -68,7 +69,6 @@ class QueuePage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-
               Card(
                 elevation: 3,
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -78,23 +78,10 @@ class QueuePage extends StatelessWidget {
                     children: [
                       rowItem('ชื่อผู้จอง', name),
                       rowItem('จำนวนคน', people),
-                      rowItem('วันเวลาที่จอง', tsText),
+                      rowItem('หมายเลขคิว', queue),
+                      rowItem('สถานะ', status),
+                      rowItem('วันเวลาที่จอง', timestampText),
                       const SizedBox(height: 24),
-
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFA6C6B),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            'กลับ',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -128,6 +115,27 @@ class QueuePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // ฟังก์ชันแสดง Dialog เมื่อถึงคิว
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('ถึงคิวของคุณแล้ว!'),
+          content: const Text('คิวของคุณได้มาถึงแล้ว โปรดไปรับบริการได้เลย'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();  // ปิด Dialog
+              },
+              child: const Text('ตกลง'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

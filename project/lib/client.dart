@@ -30,13 +30,26 @@ class ClientPage extends StatefulWidget {
 class _ClientPageState extends State<ClientPage> {
   String? user;
   String? people;
+  int queteue = 1; // เพิ่มฟิลด์หมายเลขคิว
   final _formKey = GlobalKey<FormState>();
 
   // แก้จากเดิมที่ void → ให้คืนค่า String (docId)
   Future<String> saveUserData(String user, String people) async {
-    final doc = await FirebaseFirestore.instance.collection('users').add({
+    final usersRef = FirebaseFirestore.instance.collection('users');
+    // หา queteue ที่มากที่สุดใน users
+    final snapshot = await usersRef.orderBy('queteue', descending: true).limit(1).get();
+    int nextQueue = 1;
+    if (snapshot.docs.isNotEmpty) {
+      final lastQueue = snapshot.docs.first.data()['queteue'];
+      if (lastQueue is int) {
+        nextQueue = lastQueue + 1;
+      }
+    }
+
+    final doc = await usersRef.add({
+      'queteue': nextQueue,
       'username': user,
-      'people': int.tryParse(people) ?? 1, // เก็บเป็นตัวเลข
+      'people': int.tryParse(people) ?? 1,
       'timestamp': FieldValue.serverTimestamp(),
     });
     return doc.id; // ✅ คืน docId
