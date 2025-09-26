@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'main2.dart';
+import 'package:project/main2.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -37,7 +43,7 @@ class _HomePageState extends State<HomePage>
     super.initState();
     _controller =
         AnimationController(vsync: this, duration: const Duration(seconds: 1))
-          ..repeat(reverse: true);
+          ..repeat(reverse: true); // ให้กระพริบไปเรื่อย ๆ
 
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
   }
@@ -56,18 +62,24 @@ class _HomePageState extends State<HomePage>
           image: AssetImage('assets/bbq.png'),
           alignment: Alignment.centerLeft,
         ),
+        automaticallyImplyLeading: false, // ❌ ไม่ต้องแสดงปุ่ม back อัตโนมัติ
         toolbarHeight: 70,
         centerTitle: true,
-        title: Text(
-          'IT BBQ',
-          style: GoogleFonts.playfairDisplay(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 32,
+        title: ConstrainedBox(
+          constraints: const BoxConstraints(),
+          child: Text(
+            'IT BBQ',
+            style: GoogleFonts.playfairDisplay(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 32,
+            ),
+            textAlign: TextAlign.right,
           ),
         ),
         backgroundColor: const Color(0xFFFA6C6B),
       ),
+
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -87,6 +99,7 @@ class _HomePageState extends State<HomePage>
           ),
         ),
       ),
+
       backgroundColor: const Color(0xFFF6FBFE),
     );
   }
