@@ -1,10 +1,9 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project/book.dart';
+// import 'package:project/book.dart';
+import 'package:project/queue.dart';
 import 'package:project/validator/validator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'firebase_options.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -30,15 +29,30 @@ class ClientPage extends StatefulWidget {
 
 class _ClientPageState extends State<ClientPage> {
   String? user;
-  String? password;
+  String? people;
+  int queteue = 1; // เพิ่มฟิลด์หมายเลขคิว
   final _formKey = GlobalKey<FormState>();
 
-  Future<void> saveUserData(String user, String password) async {
-    await FirebaseFirestore.instance.collection('users').add({
+  // แก้จากเดิมที่ void → ให้คืนค่า String (docId)
+  Future<String> saveUserData(String user, String people) async {
+    final usersRef = FirebaseFirestore.instance.collection('users');
+    // หา queteue ที่มากที่สุดใน users
+    final snapshot = await usersRef.orderBy('queteue', descending: true).limit(1).get();
+    int nextQueue = 1;
+    if (snapshot.docs.isNotEmpty) {
+      final lastQueue = snapshot.docs.first.data()['queteue'];
+      if (lastQueue is int) {
+        nextQueue = lastQueue + 1;
+      }
+    }
+
+    final doc = await usersRef.add({
+      'queteue': nextQueue,
       'username': user,
-      'password': password,
-      "timestamp": FieldValue.serverTimestamp(),
+      'people': int.tryParse(people) ?? 1,
+      'timestamp': FieldValue.serverTimestamp(),
     });
+    return doc.id; // ✅ คืน docId
   }
 
   @override
@@ -49,6 +63,7 @@ class _ClientPageState extends State<ClientPage> {
           image: AssetImage('assets/bbq.png'),
           alignment: Alignment.centerLeft,
         ),
+        automaticallyImplyLeading: false, // ❌ ไม่ต้องแสดงปุ่ม back อัตโนมัติ
         toolbarHeight: 70,
         centerTitle: true,
         title: Text(
@@ -114,14 +129,13 @@ class _ClientPageState extends State<ClientPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // รหัสผ่าน
+                  // จำนวนคน
                   SizedBox(
                     width: double.infinity,
                     child: TextFormField(
-                      obscureText: true,
                       decoration: InputDecoration(
-                        labelText: "รหัสผ่าน",
-                        prefixIcon: const Icon(Icons.lock),
+                        labelText: "จำนวนคน",
+                        prefixIcon: Icon(Icons.group_add),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -132,11 +146,14 @@ class _ClientPageState extends State<ClientPage> {
                           horizontal: 16,
                         ),
                       ),
-                      validator: Validator.required(
-                        errorMessage: 'กรุณากรอกรหัสผ่าน',
-                      ),
+                      validator: Validator.multiValidator([
+                        Validator.required(errorMessage: 'กรุณากรอกจำนวนคน'),
+                        Validator.numberValidator(
+                          errorMessage: 'กรุณากรอกจำนวนคนเป็นตัวเลข',
+                        ),
+                      ]),
                       onChanged: (value) {
-                        password = value;
+                        people = value;
                       },
                     ),
                   ),
@@ -150,16 +167,14 @@ class _ClientPageState extends State<ClientPage> {
                       onPressed: () async {
                         if (!_formKey.currentState!.validate()) return;
 
-                        await saveUserData(user!, password!);
+                        final id = await saveUserData(user!, people!);
 
                         if (!mounted) return;
 
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    const BookPage(title: 'หน้าจองคิว'),
+                            builder: (context) => QueuePage(docId: id),
                           ),
                         );
                       },
@@ -170,7 +185,7 @@ class _ClientPageState extends State<ClientPage> {
                         ),
                       ),
                       child: Text(
-                        'เข้าสู่ระบบ',
+                        'จองคิว',
                         style: GoogleFonts.openSans(
                           color: Colors.white,
                           fontSize: 18,
@@ -192,9 +207,33 @@ class _ClientPageState extends State<ClientPage> {
                 shape: const CircleBorder(),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    Navigator.pop(context);
+                  onPressed: () async {
+                    if (!_formKey.currentState!.validate()) return;
+
+                    try {
+                      // บันทึกข้อมูลผู้ใช้
+                      final id = await saveUserData(user!, people!);
+
+                      // ถ้าบันทึกสำเร็จ ให้ไปหน้า QueuePage
+                      if (!mounted) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => QueuePage(
+                                docId: id,
+                              ), // ส่ง docId ไปหน้า QueuePage
+                        ),
+                      );
+                    } catch (e) {
+                      // ถ้ามีข้อผิดพลาด
+                      print('Error: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('ไม่สามารถบันทึกข้อมูลได้')),
+                      );
+                    }
                   },
+
                   alignment: Alignment.topLeft,
                 ),
               ),

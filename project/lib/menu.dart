@@ -19,19 +19,19 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'IT BBQ',
       theme: ThemeData(primarySwatch: Colors.red),
-      home: const HomePage2(),
+      home: const MenuPage(),
     );
   }
 }
 
-class HomePage2 extends StatefulWidget {
-  const HomePage2({super.key});
+class MenuPage extends StatefulWidget {
+  const MenuPage({super.key});
 
   @override
-  State<HomePage2> createState() => _HomePage2State();
+  State<MenuPage> createState() => _MenuPageState();
 }
 
-class _HomePage2State extends State<HomePage2> {
+class _MenuPageState extends State<MenuPage> {
   final List<Map<String, dynamic>> cart = [];
 
   void addToCart(Map<String, dynamic> item) {
