@@ -12,19 +12,27 @@ class QueuePage extends StatelessWidget {
     final docRef = FirebaseFirestore.instance.collection('users').doc(docId);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'IT BBQ',
-          style: GoogleFonts.playfairDisplay(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 32,
+       appBar: AppBar(
+          flexibleSpace: const Image(
+            image: AssetImage('assets/bbq.png'),
+            alignment: Alignment.centerLeft,
           ),
+          toolbarHeight: 70,
+          centerTitle: true,
+          title: Text(
+            'IT BBQ',
+            style: GoogleFonts.playfairDisplay(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 32,
+            ),
+            textAlign: TextAlign.right,
+          ),
+          backgroundColor: const Color(0xFFFA6C6B),
+           automaticallyImplyLeading: false, // ไม่ให้แสดงปุ่ม back
         ),
-        backgroundColor: const Color(0xFFFA6C6B),
-        automaticallyImplyLeading: false, // ไม่ให้แสดงปุ่ม back
-      ),
-      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>( 
+       
+      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         stream: docRef.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -38,7 +46,8 @@ class QueuePage extends StatelessWidget {
           final name = data['username']?.toString() ?? '-';
           final people = data['people']?.toString() ?? '-';
           final queue = data['queteue']?.toString() ?? '-';
-          final status = data['status'] ?? 'รอต่อไป';  // ใช้ 'status' สำหรับการตรวจสอบ
+          final status =
+              data['status'] ?? 'รอต่อไป'; // ใช้ 'status' สำหรับการตรวจสอบ
           final timestamp = data['timestamp'];
 
           String timestampText = '-';
@@ -130,21 +139,18 @@ class QueuePage extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               onPressed: () {
+                Future.delayed(const Duration(seconds: 2), () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const MenuPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const MenuPage()),
                   );
-                },
-                child: const Text(
-                  'ลูกค้า',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-    }
+                }); // ปิด Dialog
+              },
+              child: const Text('ตกลง', style: TextStyle(color: Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
