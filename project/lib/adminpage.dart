@@ -12,17 +12,24 @@ class AdminQueuePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Admin Queue',
-          style: GoogleFonts.playfairDisplay(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 32,
+          flexibleSpace: const Image(
+            image: AssetImage('assets/bbq.png'),
+            alignment: Alignment.centerLeft,
           ),
+          toolbarHeight: 70,
+          centerTitle: true,
+          title: Text(
+            'IT BBQ',
+            style: GoogleFonts.playfairDisplay(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 32,
+            ),
+            textAlign: TextAlign.right,
+          ),
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color(0xFFFA6C6B),
         ),
-        backgroundColor: const Color(0xFFFA6C6B),
-        automaticallyImplyLeading: false, // ไม่ให้แสดงปุ่ม back
-      ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>( 
         stream: usersRef.orderBy('queteue').snapshots(),
         builder: (context, snapshot) {
@@ -86,6 +93,7 @@ class AdminQueuePage extends StatelessWidget {
         'status': 'ถึงคิวแล้ว',  // เพิ่ม field 'status' ที่จะเก็บข้อความหรือสถานะ
         'notified': true, // Flag ว่ามีการแจ้งเตือนแล้ว
       });
+      await userRef.delete();
     } catch (e) {
       // หากเกิดข้อผิดพลาด
       throw Exception('ไม่สามารถอัปเดตสถานะผู้ใช้ได้: $e');
