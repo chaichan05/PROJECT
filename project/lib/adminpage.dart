@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class AdminQueuePage extends StatelessWidget {
   const AdminQueuePage({super.key});
 
@@ -23,7 +22,7 @@ class AdminQueuePage extends StatelessWidget {
         backgroundColor: const Color(0xFFFA6C6B),
         automaticallyImplyLeading: false, // ไม่ให้แสดงปุ่ม back
       ),
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>( 
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: usersRef.orderBy('queteue').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -38,16 +37,19 @@ class AdminQueuePage extends StatelessWidget {
           return ListView.builder(
             itemCount: users.length,
             itemBuilder: (context, index) {
-              final data = users[index].data()!;
+              final data = users[index].data();
               final userId = users[index].id;
               final username = data['username'] ?? '-';
               final queue = data['queteue']?.toString() ?? '-';
-
+              final people =
+                  data['people']?.toString() ?? '1'; // ดึงจำนวนคนมาด้วย
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: ListTile(
                   title: Text('คิว: $queue'),
-                  subtitle: Text('ผู้จอง: $username'),
+                  subtitle: Text(
+                    'ผู้จอง: $username\nจำนวนคน: $people',
+                  ), // แสดงจำนวนคนที่มาด้วย
                   trailing: ElevatedButton(
                     onPressed: () async {
                       try {
@@ -83,7 +85,8 @@ class AdminQueuePage extends StatelessWidget {
     try {
       // อัปเดตข้อมูลใน Firestore ให้ผู้ใช้ทราบว่า "ถึงคิว"
       await userRef.update({
-        'status': 'ถึงคิวแล้ว',  // เพิ่ม field 'status' ที่จะเก็บข้อความหรือสถานะ
+        'status':
+            'ถึงคิวแล้ว', // เพิ่ม field 'status' ที่จะเก็บข้อความหรือสถานะ
         'notified': true, // Flag ว่ามีการแจ้งเตือนแล้ว
       });
     } catch (e) {
