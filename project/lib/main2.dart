@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/admin.dart';
 import 'package:project/client.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
-  runApp(const MyApp());
-}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -49,82 +50,97 @@ class HomePage2 extends StatelessWidget {
         ),
         backgroundColor: const Color(0xFFFA6C6B),
       ),
-      body: Stack(
-        children: [
-          // เนื้อหาหลัก (เลื่อนด้วย ListView ได้)
-          ListView(
-            padding: const EdgeInsets.all(16.0),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: const Color(0xFFF6FBFE),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 300),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFA6C6B),
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  textStyle: GoogleFonts.lato(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                onPressed: () {
+              // ปุ่มลูกค้า
+              _MenuBox(
+                icon: Icons.people_alt_rounded,
+                label: 'ลูกค้า',
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ClientPage(title: 'ลูกค้า'),
+                      builder: (_) => const ClientPage(title: 'ลูกค้า'), //ไปหน้า ClientPage
                     ),
                   );
                 },
-                child: const Text(
-                  'ลูกค้า',
-                  style: TextStyle(color: Colors.white),
-                ),
               ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFA6C6B),
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  textStyle: GoogleFonts.lato(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                onPressed: () {
+              const SizedBox(height: 24),
+              // ปุ่มแอดมิน
+              _MenuBox(
+                icon: Icons.admin_panel_settings_rounded,
+                label: 'แอดมิน',
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AdminLogin(title: 'แอดมิน'),
+                      builder: (_) => const AdminLogin(title: 'แอดมิน'), //ไปหน้า Admin
                     ),
                   );
                 },
-                child: const Text(
-                  'Admin',
-                  style: TextStyle(color: Colors.white),
-                ),
               ),
             ],
           ),
-          // ปุ่มย้อนกลับล่างซ้าย
-          Positioned(
-            top: 20,
-            left: 20,
-            child: Material(
-              color: Color(0xFFF6FBFE),
-              shape: const CircleBorder(),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                alignment: Alignment.topLeft,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
 
       backgroundColor: const Color(0xFFF6FBFE),
+    );
+  }
+}
+
+class _MenuBox extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _MenuBox({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 200,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2), //ความโปร่งใสของเงา
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 48, color: const Color(0xFFFA6C6B)),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF333333),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

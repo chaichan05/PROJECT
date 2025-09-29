@@ -34,7 +34,7 @@ class MenuPage extends StatefulWidget {
 class _MenuPageState extends State<MenuPage> {
   final List<Map<String, dynamic>> cart = [];
 
-  void addToCart(Map<String, dynamic> item) {
+  void addToCart(Map<String, dynamic> item) { //การเพิ่มสินค้า
     setState(() {
       final index = cart.indexWhere((e) => e['name'] == item['name']);
       if (index >= 0) {
@@ -45,7 +45,7 @@ class _MenuPageState extends State<MenuPage> {
     });
   }
 
-  void removeFromCart(String name) {
+  void removeFromCart(String name) { //การลบสินค้า
     setState(() {
       final index = cart.indexWhere((e) => e['name'] == name);
       if (index >= 0) {
@@ -58,12 +58,12 @@ class _MenuPageState extends State<MenuPage> {
     });
   }
 
-  void clearCart() {
+  void clearCart() { // เคลียร์หน้า
     setState(() => cart.clear());
   }
 
   int get totalQuantity =>
-      cart.fold(0, (sum, item) => sum + (item['qty'] as int));
+      cart.fold(0, (sum, item) => sum + (item['qty'] as int)); //บวกของในตะกร้า
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +87,7 @@ class _MenuPageState extends State<MenuPage> {
             textAlign: TextAlign.right,
           ),
           backgroundColor: const Color(0xFFFA6C6B),
+          automaticallyImplyLeading: false,
         ),
         body: Column(
           children: [
@@ -122,14 +123,14 @@ class _MenuPageState extends State<MenuPage> {
                   FirestoreListPage(
                     collectionName: 'drink',
                     emptyMessage: "ยังไม่มีข้อมูลเครื่องดื่ม",
-                    onAdd: addToCart,
+                    onAdd: addToCart, //ที่จะถูกเรียกใช้เมื่อผู้ใช้ต้องการเพิ่มสินค้าลงในตะกร้า
                   ),
                 ],
               ),
             ),
           ],
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked, //หมายความว่า FAB จะถูกวางไว้ตรงกลางของ
         floatingActionButton:
             totalQuantity > 0
                 ? Padding(
@@ -169,8 +170,8 @@ class _MenuPageState extends State<MenuPage> {
                                 builder:
                                     (_) => CartPage(
                                       cart: cart,
-                                      onRemove: removeFromCart,
-                                      onClear: clearCart,
+                                      onRemove: removeFromCart, //ส่งฟังก์ชัน removeFromCart ไปยัง firebase เพื่อให้สามารถลบสินค้าจากตะกร้าได้
+                                      onClear: clearCart, //ส่งฟังก์ชัน clearCart ไปยัง firebase เพื่อให้สามารถเคลียร์ (ล้าง) ตะกร้าสินค้าได้ทั้งหมด
                                     ),
                               ),
                             );
@@ -221,8 +222,8 @@ class FirestoreListPage extends StatelessWidget {
   const FirestoreListPage({
     super.key,
     required this.collectionName,
-    required this.emptyMessage,
-    required this.onAdd,
+    required this.emptyMessage, //ข้อความที่จะถูกแสดงเมื่อไม่มีข้อมูลในคอลเลกชัน
+    required this.onAdd,//ฟังก์ชันที่รับข้อมูลสินค้า
   });
 
   @override
@@ -237,12 +238,13 @@ class FirestoreListPage extends StatelessWidget {
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return Center(child: Text(emptyMessage));
         }
+        //ถ้าไม่พบข้อมูลใน Firestore หรือข้อมูลว่าง, จะแสดงข้อความที่กำหนดใน emptyMessage
 
         final docs = snapshot.data!.docs;
 
         // กันข้อมูลซ้ำ (ชื่อซ้ำ)
-        final Set<String> seenNames = {};
-        final filteredDocs =
+        final Set<String> seenNames = {}; //ใช้ Set<String> เพื่อเก็บชื่อสินค้าที่พบแล้ว, เพื่อไม่ให้มีการแสดงข้อมูลซ้ำ
+        final filteredDocs = //filteredDocs: กรองข้อมูลใน docs เพื่อให้แน่ใจว่าไม่มีชื่อซ้ำ โดยใช้ Set ในการตรวจสอบชื่อของแต่ละเอกสาร
             docs.where((doc) {
               final name = doc['name']?.toString() ?? '';
               if (seenNames.contains(name)) {
@@ -318,7 +320,7 @@ class FirestoreListPage extends StatelessWidget {
               ],
             };
 
-            final imageList = categoryImageMap[collectionName] ?? [];
+            final imageList = categoryImageMap[collectionName] ?? []; //ดึงข้อมูลภาพจากแผนที่ categoryImageMapถ้าไม่พบหมวดหมู่ใน categoryImageMap, จะใช้ค่าเริ่มต้นเป็นลิสต์ว่าง ([])
             String assetImagePath;
 
             if (index < imageList.length) {
@@ -375,7 +377,7 @@ class FirestoreListPage extends StatelessWidget {
   }
 }
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   final List<Map<String, dynamic>> cart;
   final Function(String) onRemove;
   final Function() onClear;
@@ -388,8 +390,13 @@ class CartPage extends StatelessWidget {
   });
 
   @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  @override
   Widget build(BuildContext context) {
-    final items = cart;
+    final items = widget.cart;
 
     final totalPrice = items.fold(
       0,
@@ -398,122 +405,126 @@ class CartPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text("ตะกร้าของฉัน")),
-      body:
-          items.isEmpty
-              ? const Center(child: Text("ยังไม่มีสินค้าในตะกร้า"))
-              : ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  final imagePath = item['image'];
+      body: items.isEmpty
+          ? const Center(child: Text("ยังไม่มีสินค้าในตะกร้า"))
+          : ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                final imagePath = item['image'];
 
-                  Widget leadingImage;
-                  if (imagePath != null && imagePath.startsWith('assets/')) {
-                    leadingImage = Image.asset(
-                      imagePath,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    );
-                  } else if (imagePath != null) {
-                    leadingImage = Image.network(
-                      imagePath,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    );
-                  } else {
-                    leadingImage = const Icon(Icons.image_not_supported);
-                  }
+                Widget leadingImage;
+                if (imagePath != null && imagePath.startsWith('assets/')) {
+                  leadingImage = Image.asset(
+                    imagePath,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  );
+                } else if (imagePath != null) {
+                  leadingImage = Image.network(
+                    imagePath,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  );
+                } else {
+                  leadingImage = const Icon(Icons.image_not_supported);
+                }
 
-                  return ListTile(
-                    leading: leadingImage,
-                    title: Text(item['name']),
-                    subtitle: Text(
-                      "จำนวน: ${item['qty']} • ราคา: ${item['price']} บาท",
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.remove_circle, color: Colors.red),
-                      onPressed: () => onRemove(item['name']),
+                return ListTile(
+                  leading: leadingImage,
+                  title: Text(item['name']),
+                  subtitle: Text(
+                    "จำนวน: ${item['qty']} • ราคา: ${item['price']} บาท",
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.remove_circle, color: Colors.red),
+                    onPressed: () {
+                      setState(() {
+                        widget.onRemove(item['name']); // ✅ รีเฟรชด้วย setState
+                      });
+                    },
+                  ),
+                );
+              },
+            ),
+      bottomNavigationBar: items.isNotEmpty
+          ? Padding(
+              padding: const EdgeInsets.all(12),
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  elevation: 8,
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.black.withOpacity(0.3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                icon: const Icon(Icons.check, size: 22),
+                label: Text(
+                  "ยืนยันการสั่งอาหาร (รวม $totalPrice บาท)",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.green,
+                            child: Icon(
+                              Icons.check,
+                              size: 50,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            "สั่งอาหารเรียบร้อยแล้ว!",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                            ),
+                            onPressed: () {
+                              widget.onClear();
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            },
+                            child: const Text(
+                              "ตกลง",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },
               ),
-      bottomNavigationBar:
-          items.isNotEmpty
-              ? Padding(
-                padding: const EdgeInsets.all(12),
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 8, // ✅ เงาปุ่ม
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    shadowColor: Colors.black.withOpacity(0.3),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  icon: const Icon(Icons.check, size: 22),
-                  label: Text(
-                    "ยืนยันการสั่งอาหาร (รวม $totalPrice บาท)",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder:
-                          (_) => AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                CircleAvatar(
-                                  radius: 40,
-                                  backgroundColor: Colors.green,
-                                  child: Icon(
-                                    Icons.check,
-                                    size: 50,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(height: 20),
-                                Text(
-                                  "สั่งอาหารเรียบร้อยแล้ว!",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            actions: [
-                              Center(
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
-                                  onPressed: () {
-                                    onClear();
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text("ตกลง",style: TextStyle(color: Colors.white),),
-                                ),
-                              ),
-                            ],
-                          ),
-                    );
-                  },
-                ),
-              )
-              : null,
+            )
+          : null,
     );
   }
 }

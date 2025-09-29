@@ -38,7 +38,7 @@ class AdminLogin extends StatefulWidget {
 class _AdminLoginState extends State<AdminLogin> {
   String? user;
   String? password;
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>(); //เป็นการสร้างคีย์สำหรับฟอร์มใน Flutter เพื่อช่วยจัดการสถานะของฟอร์ม
 
   // Future<void> saveUserData(String user, String password) async {
   //   await FirebaseFirestore.instance.collection('users').add({
@@ -156,7 +156,7 @@ class _AdminLoginState extends State<AdminLogin> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {
+                        if (_formKey.currentState!.validate()) { //ตรวจสอบ
                           // ถ้าผ่าน validator ทั้งคู่
                           Navigator.push(
                             context,

@@ -6,9 +6,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -35,15 +33,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late AnimationController _controller; //ช่วยให้ตัวหนังสืแกระพริบ
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1))
-          ..repeat(reverse: true); // ให้กระพริบไปเรื่อย ๆ
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true); // ให้กระพริบไปเรื่อย ๆ
 
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
   }
@@ -89,7 +88,7 @@ class _HomePageState extends State<HomePage>
           );
         },
         child: Center(
-          child: FadeTransition(
+          child: FadeTransition( //วิดเจ็ตที่ใช้สร้างเอฟเฟกต์การจางหาย
             opacity: _animation,
             child: const Text(
               'แตะเพื่อเข้าสู่ระบบ',

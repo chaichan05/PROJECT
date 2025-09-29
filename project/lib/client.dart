@@ -37,7 +37,8 @@ class _ClientPageState extends State<ClientPage> {
   Future<String> saveUserData(String user, String people) async {
     final usersRef = FirebaseFirestore.instance.collection('users');
     // หา queteue ที่มากที่สุดใน users
-    final snapshot = await usersRef.orderBy('queteue', descending: true).limit(1).get();
+    final snapshot =
+        await usersRef.orderBy('queteue', descending: true).limit(1).get();
     int nextQueue = 1;
     if (snapshot.docs.isNotEmpty) {
       final lastQueue = snapshot.docs.first.data()['queteue'];
@@ -122,7 +123,7 @@ class _ClientPageState extends State<ClientPage> {
                       validator: Validator.required(
                         errorMessage: 'กรุณากรอกชื่อผู้ใช้',
                       ),
-                      onChanged: (value) {
+                      onChanged: (value) { //ฟังก์ชันที่ใช้สำหรับจัดการการเปลี่ยนแปลงค่าภายใน widget
                         user = value;
                       },
                     ),
@@ -165,16 +166,16 @@ class _ClientPageState extends State<ClientPage> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () async {
-                        if (!_formKey.currentState!.validate()) return;
+                        if (!_formKey.currentState!.validate()) return; //ตรวจสอบความถูกต้องของฟอร์มก่อนการดำเนินการ
 
                         final id = await saveUserData(user!, people!);
 
-                        if (!mounted) return;
+                        if (!mounted) return; //เป็นวิธีการตรวจสอบเพื่อป้องกันไม่ให้เกิดข้อผิดพลาดจากการทำงานอะซิงโครนัส
 
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => QueuePage(docId: id),
+                            builder: (context) => QueuePage(userId: id),
                           ),
                         );
                       },
@@ -207,34 +208,17 @@ class _ClientPageState extends State<ClientPage> {
                 shape: const CircleBorder(),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () async {
-                    if (!_formKey.currentState!.validate()) return;
-
-                    try {
-                      // บันทึกข้อมูลผู้ใช้
-                      final id = await saveUserData(user!, people!);
-
-                      // ถ้าบันทึกสำเร็จ ให้ไปหน้า QueuePage
-                      if (!mounted) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => QueuePage(
-                                docId: id,
-                              ), // ส่ง docId ไปหน้า QueuePage
-                        ),
-                      );
-                    } catch (e) {
-                      // ถ้ามีข้อผิดพลาด
-                      print('Error: $e');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('ไม่สามารถบันทึกข้อมูลได้')),
-                      );
+                  onPressed: () {
+                    // กลับหน้าเดิม ถ้ามีหน้าให้กลับ
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      // ถ้าไม่มีหน้าให้กลับ จะไม่ทำอะไร (หรือจะนำทางไปหน้า Home ก็ได้)
+                      // Navigator.of(context).pushReplacement(...);
                     }
                   },
-
                   alignment: Alignment.topLeft,
+                  tooltip: 'กลับ',
                 ),
               ),
             ),

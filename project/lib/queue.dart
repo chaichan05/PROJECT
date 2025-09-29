@@ -4,42 +4,43 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project/menu.dart';
 
 class QueuePage extends StatelessWidget {
-  const QueuePage({super.key, required this.docId});
-  final String docId;
+  const QueuePage({super.key, required this.userId});
+  final String userId;
 
   @override
   Widget build(BuildContext context) {
-    final docRef = FirebaseFirestore.instance.collection('users').doc(docId);
+    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
 
     return Scaffold(
-       appBar: AppBar(
-          flexibleSpace: const Image(
-            image: AssetImage('assets/bbq.png'),
-            alignment: Alignment.centerLeft,
-          ),
-          toolbarHeight: 70,
-          centerTitle: true,
-          title: Text(
-            'IT BBQ',
-            style: GoogleFonts.playfairDisplay(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 32,
-            ),
-            textAlign: TextAlign.right,
-          ),
-          backgroundColor: const Color(0xFFFA6C6B),
-           automaticallyImplyLeading: false, // ไม่ให้แสดงปุ่ม back
+      appBar: AppBar(
+        flexibleSpace: const Image(
+          image: AssetImage('assets/bbq.png'),
+          alignment: Alignment.centerLeft,
         ),
-       
+        toolbarHeight: 70,
+        centerTitle: true,
+        title: Text(
+          'IT BBQ',
+          style: GoogleFonts.playfairDisplay(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 32,
+          ),
+          textAlign: TextAlign.right,
+        ),
+        backgroundColor: const Color(0xFFFA6C6B),
+        automaticallyImplyLeading: false, // ไม่ให้แสดงปุ่ม back
+      ),
+
+      //เป็น widget ที่ใช้ในการรับข้อมูลแบบเรียลไทม์จาก stream และอัปเดต UI
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        stream: docRef.snapshots(),
+        stream: docRef.snapshots(), //การสร้าง stream ที่ฟังการเปลี่ยนแปลงของเอกสารใน Firestore
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text('ไม่พบคิวของคุณ'));
+            return const Center(child: Text('ไม่พบคิวของคุณ')); //ตอนไม่มีคิวจะแสดง
           }
 
           final data = snapshot.data!.data()!;
@@ -60,7 +61,7 @@ class QueuePage extends StatelessWidget {
 
           // เมื่อ status เป็น "ถึงคิวแล้ว" ให้แสดง Dialog แจ้งเตือน
           if (status == 'ถึงคิวแล้ว') {
-            Future.delayed(Duration.zero, () {
+            Future.delayed(Duration.zero, () { //คือการตั้งเวลาให้เรียกฟังก์ชัน
               _showDialog(context);
             });
           }
@@ -92,6 +93,34 @@ class QueuePage extends StatelessWidget {
                       rowItem('สถานะ', status),
                       rowItem('วันเวลาที่จอง', timestampText),
                       const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+              Card(
+                elevation: 3,
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'หมายเหตุ',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '1. กรุณามาถึงร้านก่อนเวลาที่จองอย่างน้อย 15 นาที\n'
+                        '2. หากมาสายเกิน 15 นาที คิวของท่านอาจถูกยกเลิก\n'
+                        '3. หากต้องการยกเลิกคิว กรุณาแจ้งล่วงหน้าอย่างน้อย 1 ชั่วโมง',
+                        style: GoogleFonts.lato(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                      ),
                     ],
                   ),
                 ),
